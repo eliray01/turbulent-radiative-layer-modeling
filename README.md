@@ -1,52 +1,52 @@
 # Modeling Turbulent Radiative Layer Dynamics Using Neural Operators
 
-Прогнозирование динамики `turbulent_radiative_layer_2D` с помощью нейросетевых моделей для физических полей. По четырём предыдущим временным шагам модель предсказывает следующее состояние системы; качество оценивается как на одном шаге, так и при авторегрессионном rollout на 4 шага.
+Forecasting the dynamics of `turbulent_radiative_layer_2D` with neural network models for physical fields. Given four previous time steps, the model predicts the next system state; quality is evaluated on both single-step prediction and 4-step autoregressive rollout.
 
-## Участники
+## Authors
 
-- Студент: Эмиль Фахретдинов
-- Научный руководитель: Каюмов Руслан Асхатович
+- Student: Emil Fakhretdinov
+- Advisor: Ruslan Kayumov
 
-## Постановка задачи
+## Problem Setup
 
-| Параметр | Значение |
+| Parameter | Value |
 | --- | --- |
-| Датасет | [`turbulent_radiative_layer_2D`](https://polymathic-ai.org/the_well/datasets/turbulent_radiative_layer_2D/) ([The Well](https://polymathic-ai.org/the_well/)) |
-| Поля | `density`, `pressure`, `velocity_x`, `velocity_y` |
-| Вход модели | 4 предыдущих шага |
-| Режимы оценки | 1-step prediction, 4-step autoregressive rollout |
-| Нормализация | Z-score |
+| Dataset | [`turbulent_radiative_layer_2D`](https://polymathic-ai.org/the_well/datasets/turbulent_radiative_layer_2D/) ([The Well](https://polymathic-ai.org/the_well/)) |
+| Fields | `density`, `pressure`, `velocity_x`, `velocity_y` |
+| Model input | 4 previous time steps |
+| Evaluation modes | 1-step prediction, 4-step autoregressive rollout |
+| Normalization | Z-score |
 
-## Подход
+## Approach
 
-В проекте сравнены две архитектурные ветки:
+Two architectural families are compared:
 
-- **FNO** (Fourier Neural Operator) — baseline и серия улучшенных конфигураций с разным числом мод и слоёв
-- **ConvNextU-Net** — сверточная архитектура на базе ConvNeXt-блоков
+- **FNO** (Fourier Neural Operator) — baseline and a series of improved configurations with varying numbers of modes and layers
+- **ConvNextU-Net** — convolutional architecture based on ConvNeXt blocks
 
-Для обеих архитектур исследованы два режима предсказания:
+For both architectures, two prediction modes are explored:
 
-- **delta** — модель предсказывает приращение относительно последнего входного кадра
-- **full-frame** — модель предсказывает полное следующее состояние
+- **delta** — the model predicts the increment relative to the last input frame
+- **full-frame** — the model predicts the full next state
 
-Лучшая модель проекта: **`ConvNextU-Net_4_2_1_48_7`** (full-frame).
+Best model in this project: **`ConvNextU-Net_4_2_1_48_7`** (full-frame).
 
-## Результаты
+## Results
 
-### Сводка
+### Summary
 
-| Метрика | Baseline (FNO) | Лучшая FNO | Лучшая ConvNextU-Net |
+| Metric | Baseline (FNO) | Best FNO | Best ConvNextU-Net |
 | --- | --- | --- | --- |
 | 1-step VRMSE ↓ | 0.5121 | 0.2799 (`Delta_64_4`) | **0.2173** (`ConvNextU-Net_4_2_1_48_7`) |
 | 4-step rollout VRMSE ↓ | 1.6885 | 0.3411 (`Delta_32_4`) | **0.2905** (`ConvNextU-Net_4_2_1_48_7`) |
 
-Относительно лучшей FNO-конфигурации ConvNextU-Net даёт ~22% улучшения по 1-step VRMSE и ~15% по 4-step rollout. Относительно baseline — ~58% и ~83% соответственно.
+Compared to the best FNO configuration, ConvNextU-Net achieves ~22% improvement on 1-step VRMSE and ~15% on 4-step rollout. Compared to the baseline — ~58% and ~83% respectively.
 
-Для FNO лучшие результаты показали delta-варианты; для ConvNextU-Net — full-frame. Это указывает на различие в том, как архитектуры используют контекст предыдущих шагов.
+For FNO, delta variants performed best; for ConvNextU-Net — full-frame. This suggests the architectures use temporal context differently.
 
 ### 1-step prediction
 
-Источники: `results/FNO/Model Comparison (1-Step Prediction).csv`, `results/U-net/Model Comparison (1-Step Prediction).csv`
+Sources: `results/FNO/Model Comparison (1-Step Prediction).csv`, `results/U-net/Model Comparison (1-Step Prediction).csv`
 
 | Model | VRMSE ↓ | Rel L2 ↓ | R2 ↑ | RMSE ↓ |
 | --- | --- | --- | --- | --- |
@@ -64,7 +64,7 @@
 
 ### 4-step autoregressive rollout
 
-Источники: `results/FNO/Model Comparison (Rollout 4-step).csv`, `results/U-net/Model Comparison (Rollout 4-step).csv`
+Sources: `results/FNO/Model Comparison (Rollout 4-step).csv`, `results/U-net/Model Comparison (Rollout 4-step).csv`
 
 | Model | VRMSE ↓ | Rel L2 ↓ | R2 ↑ | RMSE ↓ | MAE ↓ |
 | --- | --- | --- | --- | --- | --- |
@@ -80,9 +80,9 @@
 | ConvNextU-Net_4_2_1_42_7 | 0.2912 | 0.2908 | 0.9081 | 0.2971 | 0.1084 |
 | ConvNextU-Net_4_2_1_48_7 | **0.2905** | **0.2901** | **0.9083** | **0.2963** | **0.1071** |
 
-### Покомпонентное сравнение: 1-step VRMSE
+### Per-field comparison: 1-step VRMSE
 
-Источники: `results/FNO/Per-field Comparison (1-Step).csv`, `results/U-net/Per-field Comparison (1-Step).csv`
+Sources: `results/FNO/Per-field Comparison (1-Step).csv`, `results/U-net/Per-field Comparison (1-Step).csv`
 
 | Model | density | pressure | velocity_x | velocity_y |
 | --- | --- | --- | --- | --- |
@@ -98,9 +98,9 @@
 | ConvNextU-Net_4_2_1_42_7 | 0.1092 | 0.2727 | 0.2423 | 0.2644 |
 | ConvNextU-Net_4_2_1_48_7 | **0.1021** | **0.2714** | **0.2371** | **0.2587** |
 
-### Покомпонентное сравнение: 4-step rollout VRMSE
+### Per-field comparison: 4-step rollout VRMSE
 
-Источники: `results/FNO/Per-field Comparison (Rollout).csv`, `results/U-net/Per-field Comparison (Rollout).csv`
+Sources: `results/FNO/Per-field Comparison (Rollout).csv`, `results/U-net/Per-field Comparison (Rollout).csv`
 
 | Model | density | pressure | velocity_x | velocity_y |
 | --- | --- | --- | --- | --- |
@@ -116,9 +116,9 @@
 | ConvNextU-Net_4_2_1_42_7 | 0.1503 | 0.3658 | 0.3037 | 0.3452 |
 | ConvNextU-Net_4_2_1_48_7 | **0.1478** | **0.3676** | **0.3047** | **0.3419** |
 
-### Рост ошибки по горизонту rollout
+### Error growth over rollout horizon
 
-Источники: `results/FNO/Error Growth (Rollout Stability).csv`, `results/U-net/Error Growth (Rollout Stability).csv`
+Sources: `results/FNO/Error Growth (Rollout Stability).csv`, `results/U-net/Error Growth (Rollout Stability).csv`
 
 | Model | Step 1 | Step 2 | Step 3 | Step 4 |
 | --- | --- | --- | --- | --- |
@@ -134,9 +134,9 @@
 | ConvNextU-Net_4_2_1_42_7 | 0.2209 | 0.2701 | 0.3103 | 0.3466 |
 | ConvNextU-Net_4_2_1_48_7 | **0.2160** | **0.2694** | **0.3109** | **0.3471** |
 
-## Визуальное сравнение rollout
+## Visual rollout comparison
 
-GIF-анимации rollout по полю `density` для одной и той же траектории.
+GIF animations of rollout for the `density` field on the same trajectory.
 
 ### FNO
 
@@ -144,7 +144,7 @@ GIF-анимации rollout по полю `density` для одной и той
 | --- | --- | --- | --- |
 | ![](plot_gifs_out/FNO/delta_gifs/baseline_model/traj000_density_pretrained_delta/sequence.gif) | ![](plot_gifs_out/FNO/delta_gifs/delta_32_4/traj000_density_delta_last_delta_model/sequence.gif) | ![](plot_gifs_out/FNO/delta_gifs/delta_64_4/traj000_density_delta_final_model_delta/sequence.gif) | ![](plot_gifs_out/FNO/full_gifs/full_64_4/traj000_density_full_final_model_full_frame/sequence.gif) |
 
-Дополнительные GIF: `plot_gifs_out/FNO/delta_gifs/`, `plot_gifs_out/FNO/full_gifs/`
+Additional GIFs: `plot_gifs_out/FNO/delta_gifs/`, `plot_gifs_out/FNO/full_gifs/`
 
 ### ConvNextU-Net
 
@@ -152,22 +152,22 @@ GIF-анимации rollout по полю `density` для одной и той
 | --- | --- | --- |
 | ![](plot_gifs_out/U-net/full_gifs/unet_full_4_2_1_42_7/traj000_density_cnextunet_full_best_cnextunet_by_valid_rollout_vrmse/sequence.gif) | ![](plot_gifs_out/U-net/full_gifs/unet_full_4_2_1_48_7/traj000_density_cnextunet_full_best_cnextunet_by_valid_rollout_vrmse/sequence.gif) | ![](plot_gifs_out/U-net/delta_gifs/unet_delta_4_2_1_42_7/traj000_density_cnextunet_delta_best_cnextunet_delta_by_valid_rollout_vrmse/sequence.gif) |
 
-Дополнительные GIF: `plot_gifs_out/U-net/delta_gifs/`, `plot_gifs_out/U-net/full_gifs/`
+Additional GIFs: `plot_gifs_out/U-net/delta_gifs/`, `plot_gifs_out/U-net/full_gifs/`
 
-## Выводы
+## Conclusions
 
-`ConvNextU-Net_4_2_1_48_7` (full-frame) превосходит все протестированные FNO-конфигурации по всем ключевым метрикам — как на 1-step prediction, так и на 4-step rollout, включая покомпонентный анализ по всем четырём полям. Модель также демонстрирует наименьший рост ошибки при увеличении горизонта rollout.
+`ConvNextU-Net_4_2_1_48_7` (full-frame) outperforms all tested FNO configurations across every key metric — on both 1-step prediction and 4-step rollout, including per-field analysis across all four fields. The model also shows the smallest error growth as the rollout horizon increases.
 
-## Структура репозитория
+## Repository structure
 
 ```
 msc_hse/
-├── dataset.ipynb              # загрузка данных и подготовка выборок
-├── data_explore.ipynb         # EDA и визуальный анализ траекторий
-├── models_eval.ipynb          # сравнение моделей и метрик
-├── evaluate.py                # оценка предобученного FNO baseline
-├── autoregressive_pretrained_fno.py   # rollout и визуализация FNO
-├── autoregressive_cnextunet.py        # rollout и визуализация ConvNextU-Net
+├── dataset.ipynb              # data loading and sample preparation
+├── data_explore.ipynb         # EDA and trajectory visualization
+├── models_eval.ipynb          # model and metric comparison
+├── evaluate.py                # pretrained FNO baseline evaluation
+├── autoregressive_pretrained_fno.py   # FNO rollout and visualization
+├── autoregressive_cnextunet.py        # ConvNextU-Net rollout and visualization
 ├── training_scripts/
 │   ├── train_fno_delta.py
 │   ├── train_fno_full_frame.py
@@ -177,15 +177,15 @@ msc_hse/
 │   ├── plot_metrics.py
 │   └── plot_folder_gifs.py
 ├── results/
-│   ├── FNO/                   # таблицы метрик FNO
-│   └── U-net/                 # таблицы метрик ConvNextU-Net
-├── plot_gifs_out/             # GIF-анимации rollout
-└── models_trained/            # сохранённые веса моделей
+│   ├── FNO/                   # FNO metric tables
+│   └── U-net/                 # ConvNextU-Net metric tables
+├── plot_gifs_out/             # rollout GIF animations
+└── models_trained/            # saved model weights
 ```
 
-## Быстрый старт
+## Quick start
 
-### Установка
+### Installation
 
 ```bash
 python -m venv .venv
@@ -193,9 +193,9 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Датасет загружается автоматически через [`the_well`](https://github.com/PolymathicAI/the_well) при первом запуске скриптов обучения или оценки. По умолчанию данные сохраняются в `./data/`.
+The dataset is downloaded automatically via [`the_well`](https://github.com/PolymathicAI/the_well) on the first run of training or evaluation scripts. By default, data is saved to `./data/`.
 
-### Обучение
+### Training
 
 ```bash
 # FNO
@@ -207,20 +207,20 @@ python training_scripts/train_cnextunet_delta.py
 python training_scripts/train_cnextunet_full_frame.py
 ```
 
-### Rollout и визуализация
+### Rollout and visualization
 
 ```bash
-# FNO (включая предобученный baseline)
+# FNO (including pretrained baseline)
 python autoregressive_pretrained_fno.py
 
-# ConvNextU-Net (лучшая модель)
+# ConvNextU-Net (best model)
 python autoregressive_cnextunet.py --trained-model-dir models_trained/unet_full_4_2_1_48_7
 ```
 
-### Оценка baseline
+### Baseline evaluation
 
 ```bash
 python evaluate.py
 ```
 
-Подробный анализ результатов — в ноутбуках `dataset.ipynb`, `data_explore.ipynb` и `models_eval.ipynb`.
+For detailed result analysis, see the notebooks `dataset.ipynb`, `data_explore.ipynb`, and `models_eval.ipynb`.
